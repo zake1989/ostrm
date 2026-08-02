@@ -2,6 +2,7 @@ package com.hienao.openlist2strm.handler;
 
 import com.hienao.openlist2strm.handler.context.FileProcessingContext;
 import com.hienao.openlist2strm.service.OpenlistApiService;
+import com.hienao.openlist2strm.service.StrmFileService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Component;
 public class OrphanCleanupHandler implements FileProcessorHandler {
 
   private final OpenlistApiService openlistApiService;
+  private final StrmFileService strmFileService;
 
   // ==================== 接口实现 ====================
 
@@ -344,7 +346,7 @@ public class OrphanCleanupHandler implements FileProcessorHandler {
               .anyMatch(
                   path -> {
                     String name = path.getFileName().toString().toLowerCase();
-                    return name.endsWith(".strm") || isVideoFile(name);
+                    return name.endsWith(".strm") || strmFileService.isVideoFile(name);
                   });
 
       if (!hasOtherVideoFiles) {
@@ -382,7 +384,7 @@ public class OrphanCleanupHandler implements FileProcessorHandler {
 
     return openlistFiles.stream()
         .filter(f -> "file".equals(f.getType()))
-        .filter(f -> isVideoFile(f.getName()))
+        .filter(f -> strmFileService.isVideoFile(f.getName()))
         .anyMatch(
             f -> {
               // 同样规范化 OpenList 文件名
@@ -411,19 +413,6 @@ public class OrphanCleanupHandler implements FileProcessorHandler {
     } catch (Exception e) {
       return false;
     }
-  }
-
-  private boolean isVideoFile(String fileName) {
-    if (fileName == null) return false;
-    String lower = fileName.toLowerCase();
-    return lower.endsWith(".mp4")
-        || lower.endsWith(".mkv")
-        || lower.endsWith(".avi")
-        || lower.endsWith(".mov")
-        || lower.endsWith(".wmv")
-        || lower.endsWith(".flv")
-        || lower.endsWith(".webm")
-        || lower.endsWith(".m4v");
   }
 
   private boolean isImageFile(String fileName) {
