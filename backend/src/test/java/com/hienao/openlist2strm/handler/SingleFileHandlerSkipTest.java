@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.hienao.openlist2strm.handler.context.FileProcessingContext;
 import com.hienao.openlist2strm.service.OpenlistApiService;
+import com.hienao.openlist2strm.service.StrmFileService;
 import org.junit.jupiter.api.Test;
 
 class SingleFileHandlerSkipTest {
@@ -24,12 +25,13 @@ class SingleFileHandlerSkipTest {
   @Test
   void orphanCleanupSkipsDirectoryTraversalForSingleFileContext() {
     OpenlistApiService openlistApiService = mock(OpenlistApiService.class);
-    OrphanCleanupHandler handler = new OrphanCleanupHandler(openlistApiService);
+    StrmFileService strmFileService = mock(StrmFileService.class);
+    OrphanCleanupHandler handler = new OrphanCleanupHandler(openlistApiService, strmFileService);
 
     ProcessingResult result = handler.process(singleFileContext());
 
     assertEquals(ProcessingResult.SKIPPED, result);
-    verifyNoInteractions(openlistApiService);
+    verifyNoInteractions(openlistApiService, strmFileService);
   }
 
   private FileProcessingContext singleFileContext() {
